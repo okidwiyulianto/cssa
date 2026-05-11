@@ -52,3 +52,6 @@ Jalankan aplikasi dengan perintah:
    RSI(6)         : 72.45
    Harga Terakhir : 65,500.00
    Sinyal         : JUAL (Harga >= UP & RSI Overbought)
+
+## ⚠️ Disclaimer
+Aplikasi ini dibuat hanya untuk tujuan edukasi dan alat bantu analisis teknikal. Keputusan investasi sepenuhnya berada di tangan pengguna. Perlu diingat bahwa trading memiliki risiko finansial.
