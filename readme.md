@@ -30,7 +30,7 @@ Aplikasi ini bekerja dengan memindai kondisi market terkini:
 
 1. **Clone Repositori ini:**
    ```bash
-   git clone [https://github.com/username-anda/nama-repo.git](https://github.com/okidwiyulianto/aplikasi-trading.git)
+   git clone [https://github.com/username-anda/nama-repo.git](https://github.com/okidwiyulianto/aplikasi-trading-saham-dan-kripto.git)
    cd nama-repo
 
 2. **Install Library yang Dibutuhkan**
