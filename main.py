@@ -1,14 +1,27 @@
 import pandas as pd
-import yfinance as yf # type: ignore
-import ccxt # type: ignore
-import ta # type: ignore
+import yfinance as yf
+import ccxt
+import ta
 import sys
 
 def format_ribuan(angka, desimal=2):
-    """Memformat angka menjadi string dengan pemisah koma untuk ribuan dan titik untuk desimal"""
+    """Memformat angka menjadi string dengan pemisah koma untuk ribuan dan titik untuk desimal."""
     if desimal == 0:
         return "{:,.0f}".format(angka)
     return "{:,.2f}".format(angka)
+
+def _format_timestamp(ts):
+    """Format timestamp ke string WIB yang mudah dibaca."""
+    if ts is None:
+        return "N/A"
+    try:
+        import pytz
+        wib = pytz.timezone('Asia/Jakarta')
+        if hasattr(ts, 'tzinfo') and ts.tzinfo is not None:
+            ts = ts.astimezone(wib)
+        return ts.strftime('%d-%b-%Y %H:%M WIB')
+    except Exception:
+        return str(ts)
 
 def get_crypto_data(symbol, timeframe='15m', limit=300):
     try:
@@ -20,10 +33,14 @@ def get_crypto_data(symbol, timeframe='15m', limit=300):
         return None
 
 def _fetch_yf(symbol, timeframe):
-    """Helper: ambil data yfinance untuk satu simbol dan timeframe tertentu."""
+    """
+    Helper: ambil data yfinance untuk satu simbol dan timeframe.
+    Menyimpan timestamp index sebagai kolom agar bisa ditampilkan ke user.
+    """
     ticker = yf.Ticker(symbol)
+
     if timeframe == '4h':
-        # yfinance tidak mendukung 4h langsung, ambil 1h lalu resample ke 4h
+        # yfinance tidak mendukung 4h langsung -> ambil 1h lalu resample ke 4h
         df = ticker.history(period="3mo", interval="1h")
         if df.empty:
             return None
@@ -43,83 +60,90 @@ def _fetch_yf(symbol, timeframe):
         if df.empty:
             return None
         df.columns = [c.lower() for c in df.columns]
-    return df if not df.empty else None
+
+    if df.empty:
+        return None
+
+    # Simpan timestamp dari index sebagai kolom agar mudah diakses
+    df = df.copy()
+    df['timestamp'] = df.index
+    df = df.reset_index(drop=True)
+    return df
 
 def get_stock_data(symbol, timeframe='15m'):
     """
     Deteksi pasar otomatis:
-      1. Coba simbol apa adanya → cocok untuk saham AS/asing (NVDA, QQQ, SPY, TSM, dll.)
-         dan simbol IDX yang sudah mengandung '.JK' (BMRI.JK).
-      2. Jika kosong/gagal, coba tambahkan '.JK' → fallback untuk saham IDX
-         dengan ticker 4 huruf (BBCA, BMRI, TLKM, dll.).
+      Percobaan 1 -> Simbol apa adanya (US/asing: NVDA, QQQ, SPY, TSM, WDC, dll.)
+      Percobaan 2 -> Fallback tambah '.JK' (IDX: BBCA, BMRI, TLKM, dll.)
+    Tidak perlu input khusus dari user -- semua otomatis.
     """
     try:
-        # ── Percobaan 1: Simbol apa adanya (US / asing / sudah lengkap) ──
         df = _fetch_yf(symbol, timeframe)
         if df is not None:
             return df
-
-        # ── Percobaan 2: Fallback ke IDX (.JK) ──────────────────────────
-        symbol_jk = f"{symbol}.JK"
-        df = _fetch_yf(symbol_jk, timeframe)
-        return df  # None jika keduanya gagal
+        df = _fetch_yf(f"{symbol}.JK", timeframe)
+        return df
     except:
         return None
 
 # ===========================================================
-#  FUNGSI UTAMA YANG DIUBAH: analyze_signal
+#  FUNGSI UTAMA: analyze_signal
 #  Strategi multi-timeframe:
-#    TF 4H  → Filter Trend  : EMA(200)
-#    TF 15M → Filter Volume : VOL > MA(5)
-#    TF 15M → Sinyal Akhir  : RSI(6)
+#    TF 4H  -> Filter Trend  : EMA(200)
+#    TF 15M -> Filter Volume : VOL > MA(5)
+#    TF 15M -> Sinyal Akhir  : RSI(6)
 # ===========================================================
 def analyze_signal(df_4h, df_15m):
     """
-    LANGKAH 1 — Trend Filter (TF 4 Jam, EMA 200)
-      - Harga < EMA200  → WAIT, berhenti
-      - Harga > EMA200  → lanjut ke Langkah 2
+    LANGKAH 1 -- Trend Filter (TF 4 Jam, EMA 200)
+      - Harga <= EMA200  -> WAIT, berhenti
+      - Harga >  EMA200  -> lanjut ke Langkah 2
 
-    LANGKAH 2 — Volume Filter (TF 15 Menit, Volume MA 5)
-      - Volume < MA(5)  → WAIT, berhenti
-      - Volume > MA(5)  → lanjut ke Langkah 3
+    LANGKAH 2 -- Volume Filter (TF 15 Menit, Volume MA 5)
+      - Volume <= MA(5)  -> WAIT, berhenti
+      - Volume >  MA(5)  -> lanjut ke Langkah 3
 
-    LANGKAH 3 — Sinyal Akhir (TF 15 Menit, RSI 6)
-      - RSI > 70        → JUAL
-      - RSI < 30        → BELI
-      - Selain itu      → WAIT
+    LANGKAH 3 -- Sinyal Akhir (TF 15 Menit, RSI 6)
+      - RSI > 70         -> JUAL
+      - RSI < 30         -> BELI
+      - Selain itu       -> WAIT
     """
 
-    # ── LANGKAH 1: EMA 200 pada TF 4 Jam ──────────────────
+    # -- LANGKAH 1: EMA 200 pada TF 4 Jam --
     df_4h = df_4h.copy()
     df_4h['EMA200'] = ta.trend.EMAIndicator(
         close=df_4h['close'], window=200
     ).ema_indicator()
 
-    last_4h = df_4h.iloc[-1]
-    ema200  = last_4h['EMA200']
+    last_4h  = df_4h.iloc[-1]
+    ema200   = last_4h['EMA200']
     close_4h = last_4h['close']
+    ts_4h    = last_4h.get('timestamp', None)
 
     if pd.isna(ema200):
         return "WAIT (Data 4H tidak cukup untuk EMA 200)", None
 
     if close_4h <= ema200:
         params = {
-            'ema200':   ema200,
-            'close_4h': close_4h,
-            'vol':      None,
-            'vol_ma5':  None,
-            'rsi':      None,
+            'ema200':    ema200,
+            'close_4h':  close_4h,
+            'ts_4h':     ts_4h,
+            'vol':       None,
+            'vol_ma5':   None,
+            'rsi':       None,
             'close_15m': None,
+            'ts_15m':    None,
         }
-        return "WAIT (Harga di Bawah EMA 200 — Tren Turun)", params
+        return "WAIT (Harga di Bawah EMA 200 - Tren Turun)", params
 
-    # ── LANGKAH 2: Volume MA(5) pada TF 15 Menit ──────────
+    # -- LANGKAH 2: Volume MA(5) pada TF 15 Menit --
     df_15m = df_15m.copy()
     df_15m['VOL_MA5'] = df_15m['volume'].rolling(window=5).mean()
 
-    last_15m  = df_15m.iloc[-1]
-    vol       = last_15m['volume']
-    vol_ma5   = last_15m['VOL_MA5']
+    last_15m = df_15m.iloc[-1]
+    vol      = last_15m['volume']
+    vol_ma5  = last_15m['VOL_MA5']
+    ts_15m   = last_15m.get('timestamp', None)
 
     if pd.isna(vol_ma5):
         return "WAIT (Data 15M tidak cukup untuk VOL MA(5))", None
@@ -128,29 +152,34 @@ def analyze_signal(df_4h, df_15m):
         params = {
             'ema200':    ema200,
             'close_4h':  close_4h,
+            'ts_4h':     ts_4h,
             'vol':       vol,
             'vol_ma5':   vol_ma5,
             'rsi':       None,
             'close_15m': last_15m['close'],
+            'ts_15m':    ts_15m,
         }
-        return "WAIT (Volume Lemah — Volume < MA(5))", params
+        return "WAIT (Volume Lemah - Volume <= MA(5))", params
 
-    # ── LANGKAH 3: RSI(6) pada TF 15 Menit ───────────────
+    # -- LANGKAH 3: RSI(6) pada TF 15 Menit --
     df_15m['RSI'] = ta.momentum.RSIIndicator(
         close=df_15m['close'], window=6
     ).rsi()
 
-    last_15m  = df_15m.iloc[-1]   # refresh setelah kolom baru ditambah
+    last_15m  = df_15m.iloc[-1]  # refresh setelah kolom RSI ditambah
     rsi       = last_15m['RSI']
     close_15m = last_15m['close']
+    ts_15m    = last_15m.get('timestamp', None)
 
     params = {
         'ema200':    ema200,
         'close_4h':  close_4h,
+        'ts_4h':     ts_4h,
         'vol':       vol,
         'vol_ma5':   vol_ma5,
         'rsi':       rsi,
         'close_15m': close_15m,
+        'ts_15m':    ts_15m,
     }
 
     if rsi > 70:
@@ -158,25 +187,34 @@ def analyze_signal(df_4h, df_15m):
     elif rsi < 30:
         signal = "BELI (RSI Oversold < 30)"
     else:
-        signal = "WAIT (RSI Netral — Tidak Ada Sinyal)"
+        signal = "WAIT (RSI Netral - Tidak Ada Sinyal)"
 
     return signal, params
 
 # ===========================================================
 
 def main():
-    print("="*60)
+    print("=" * 60)
     print("Aplikasi Trading Saham dan Kripto")
     print("Dibuat oleh: Oki Dwi Yulianto")
     print("Disclaimer: Aplikasi ini hanya mempermudah trader dalam")
     print("menganalisa, bukan jaminan 100% profit.")
-    print("="*60)
-    print("Strategi  : EMA(200)/4H → VOL MA(5)/15M → RSI(6)/15M")
+    print("=" * 60)
+    print("Strategi  : EMA(200)/4H -> VOL MA(5)/15M -> RSI(6)/15M")
+    print("Data delay: +-15 menit (yfinance free tier)")
+    print()
+    print("JAM PASAR (WIB):")
+    print("  IDX    : Senin-Jumat  09:00 - 15:30")
+    print("  Nasdaq : Senin-Jumat  21:30 - 04:00 (hari berikutnya)")
+    print("  NYSE   : Senin-Jumat  21:30 - 04:00 (hari berikutnya)")
+    print("  Crypto : 24 jam / 7 hari")
+    print("  CATATAN: Di luar jam pasar, candle terakhir = sesi sebelumnya.")
+    print("           Cocokkan kolom 'Candle' di output dengan chart Anda.")
     print("(Ketik 'exit' atau '0' untuk keluar)")
 
     while True:
         try:
-            user_input = input("\nMasukan ticker (Contoh: BTC/USDT atau BMRI): ")
+            user_input = input("\nMasukan ticker (Contoh: BTC/USDT, NVDA, QQQ, BMRI.JK untuk pasar IDX): ")
             ticker = user_input.upper().strip()
 
             if ticker in ['EXIT', '0']:
@@ -186,13 +224,16 @@ def main():
             is_crypto = "/" in ticker
 
             print(f"Mengambil data 4H untuk {ticker}...")
-            df_4h = get_crypto_data(ticker, timeframe='4h', limit=300) if is_crypto else get_stock_data(ticker, timeframe='4h')
+            df_4h = (get_crypto_data(ticker, timeframe='4h', limit=300)
+                     if is_crypto else get_stock_data(ticker, timeframe='4h'))
 
             print(f"Mengambil data 15M untuk {ticker}...")
-            df_15m = get_crypto_data(ticker, timeframe='15m', limit=300) if is_crypto else get_stock_data(ticker, timeframe='15m')
+            df_15m = (get_crypto_data(ticker, timeframe='15m', limit=300)
+                      if is_crypto else get_stock_data(ticker, timeframe='15m'))
 
             if df_4h is None or df_4h.empty:
-                print(f"Data 4H '{ticker}' tidak ditemukan.")
+                print(f"Data 4H '{ticker}' tidak ditemukan. "
+                      f"Gunakan '/' untuk Kripto (Contoh: ETH/USDT).")
                 continue
             if df_15m is None or df_15m.empty:
                 print(f"Data 15M '{ticker}' tidak ditemukan.")
@@ -203,16 +244,20 @@ def main():
             print(f"\n------------------ HASIL ANALISA {ticker} ------------------")
 
             if p is not None:
-                tf_label = "4H " if p['close_15m'] is None else "4H "
-                print(f"EMA(200)/4H   : {format_ribuan(p['ema200'])}")
-                print(f"Harga/4H      : {format_ribuan(p['close_4h'])}")
+                # -- Data TF 4H --
+                print(f"[4H] Candle    : {_format_timestamp(p.get('ts_4h'))}")
+                print(f"[4H] EMA(200)  : {format_ribuan(p['ema200'])}")
+                print(f"[4H] Harga     : {format_ribuan(p['close_4h'])}")
 
+                # -- Data TF 15M (hanya jika lolos langkah 1) --
                 if p['vol'] is not None:
-                    print(f"VOL/15M       : {format_ribuan(p['vol'], 0)}; MA(5) = {format_ribuan(p['vol_ma5'], 0)}")
+                    print(f"[15M] Candle   : {_format_timestamp(p.get('ts_15m'))}")
+                    print(f"[15M] Harga    : {format_ribuan(p['close_15m'])}")
+                    print(f"[15M] VOL      : {format_ribuan(p['vol'], 0)}"
+                          f"  | MA(5) = {format_ribuan(p['vol_ma5'], 0)}")
 
                 if p['rsi'] is not None:
-                    print(f"RSI(6)/15M    : {format_ribuan(p['rsi'])}")
-                    print(f"Harga/15M     : {format_ribuan(p['close_15m'])}")
+                    print(f"[15M] RSI(6)   : {format_ribuan(p['rsi'])}")
 
             print(f"Sinyal        : {signal}")
             print("-" * 60)
