@@ -1,7 +1,7 @@
 import pandas as pd
-import yfinance as yf
-import ccxt
-import ta
+import yfinance as yf # type: ignore
+import ccxt # type: ignore
+import ta # type: ignore
 import sys
 
 def format_ribuan(angka, desimal=2):
