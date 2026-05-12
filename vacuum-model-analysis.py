@@ -232,7 +232,7 @@ def main():
 
             # Tampilkan Hasil
             print(f"\n" + "-"*20 + f" HASIL ANALISA {ticker} " + "-"*20)
-            print(f"Waktu Sistem   : {waktu_sekarang} (Real-time)")
+            print(f"Waktu Sistem    : {waktu_sekarang} (Real-time)")
             
             if p:
                 print(f"Waktu Data      : {_format_timestamp(p.get('ts'))} (Candle Terakhir)")
