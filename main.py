@@ -195,7 +195,7 @@ def analyze_signal(df_4h, df_15m):
 
 def main():
     print("=" * 60)
-    print("Aplikasi Trading Saham dan Kripto")
+    print("Crypto & Stock Signal Analyzer")
     print("Dibuat oleh: Oki Dwi Yulianto")
     print("Disclaimer: Aplikasi ini hanya mempermudah trader dalam")
     print("menganalisa, bukan jaminan 100% profit.")
