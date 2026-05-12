@@ -214,7 +214,7 @@ def main():
 
     while True:
         try:
-            user_input = input("\nMasukan ticker (Contoh: BTC/USDT, NVDA, QQQ, BMRI.JK untuk pasar IDX): ")
+            user_input = input("\nMasukan ticker (Contoh: BTC/USDT, NVDA, QQQ, BMRI.JK untuk pasar IDX tambahkan .JK): ")
             ticker = user_input.upper().strip()
 
             if ticker in ['EXIT', '0']:
