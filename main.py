@@ -259,7 +259,7 @@ def main():
                 if p['rsi'] is not None:
                     print(f"[15M] RSI(6)   : {format_ribuan(p['rsi'])}")
 
-            print(f"Sinyal        : {signal}")
+            print(f"Sinyal         : {signal}")
             print("-" * 60)
 
         except (EOFError, KeyboardInterrupt):
