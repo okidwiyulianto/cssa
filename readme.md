@@ -54,18 +54,18 @@ Aplikasi ini bekerja dengan memindai kondisi market terkini:
 ## 🛠️ Logika Strategi Vacum Model Analysis
 Strategi ini berfokus pada psikologi trader yang terjebak di area harga tertentu:
 ```
-   1.  **Buy (Long Setup)**:
-      * **Kondisi**: Terbentuk profil **B-Shape** (akumulasi volume di bawah), menandakan adanya *Bearish Trap*.
-      * **Konfirmasi**: Harga berhasil menembus dan ditutup di atas level **Point of Control (POC)**.
-      * **Target**: Menuju area *Low Volume Node* (ujung atas range).
+   1.  Buy (Long Setup):
+      * Kondisi: Terbentuk profil B-Shape (akumulasi volume di bawah), menandakan adanya Bearish Trap.
+      * Konfirmas: Harga berhasil menembus dan ditutup di atas level Point of Control (POC).
+      * Target: Menuju area Low Volume Node (ujung atas range).
 
-   2.  **Sell (Short Setup)**:
-      * **Kondisi**: Terbentuk profil **P-Shape** (akumulasi volume di atas), menandakan adanya *Bullish Trap*.
-      * **Konfirmasi**: Harga gagal bertahan dan ditutup di bawah level **Point of Control (POC)**.
-      * **Target**: Menuju area *Low Volume Node* (ujung bawah range).
+   2.  Sell (Short Setup):
+      * Kondisi: Terbentuk profil P-Shape (akumulasi volume di atas), menandakan adanya Bullish Trap.
+      * Konfirmasi: Harga gagal bertahan dan ditutup di bawah level **Point of Control (POC).
+      * Target: Menuju area Low Volume Node (ujung bawah range).
 
-   3.  **Wait (Netral)**:
-      * Harga masih berada di area keseimbangan (*Balance*) atau belum ada penembusan POC yang valid.
+   3.  Wait (Netral):
+      * Harga masih berada di area keseimbangan (Balance) atau belum ada penembusan POC yang valid.
 ```
 
 ---
