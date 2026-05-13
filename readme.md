@@ -74,8 +74,8 @@ Strategi ini berfokus pada psikologi trader yang terjebak di area harga tertentu
 
 1. **Clone Repositori ini:**
    ```bash
-   git clone [https://github.com/okidwiyulianto/aplikasi-trading-saham-dan-kripto.git](https://github.com/okidwiyulianto/aplikasi-trading-saham-dan-kripto.git)
-   cd aplikasi-trading-saham-dan-kripto
+   git clone [https://github.com/okidwiyulianto/cssa.git](https://github.com/okidwiyulianto/cssa.git)
+   cd cssa
 
 2. **Install Library yang Dibutuhkan**
    ```bash
@@ -88,17 +88,44 @@ Jalankan aplikasi dengan perintah:
    python main.py
    ```
 
-## 📊 Contoh Tampilan Output
+## 📊 Contoh Tampilan Output Strategi Multi Timeframe Analysis
    ```bash
-   ------------------ HASIL ANALISA BTC/USDT ------------------
-   [4H] Candle    : 1778558400000.0
-   [4H] EMA(200)  : 77,194.75
-   [4H] Harga     : 81,255.33
-   [15M] Candle   : 1778565600000.0
-   [15M] Harga    : 81,258.48
-   [15M] VOL      : 48  | MA(5) = 76
-    Sinyal        : WAIT (Volume Lemah - Volume <= MA(5))
+   ============================================================
+   Aplikasi Trading Saham dan Kripto
+   Dibuat oleh: Oki Dwi Yulianto
+   Disclaimer: Aplikasi ini hanya mempermudah trader dalam
+   menganalisa, bukan jaminan 100% profit.
+   ============================================================
+   Strategi  : EMA(200)/4H -> VOL MA(5)/15M -> RSI(6)/15M
+   Data delay: +-15 menit (yfinance free tier)
+
+   JAM PASAR (WIB):
+   IDX    : Senin-Jumat  09:00 - 15:30
+   Nasdaq : Senin-Jumat  21:30 - 04:00 (hari berikutnya)
+   NYSE   : Senin-Jumat  21:30 - 04:00 (hari berikutnya)
+   Crypto : 24 jam / 7 hari
+
+   (Ketik 'exit' atau '0' untuk keluar)
    ------------------------------------------------------------
+
+   Ketikan ticker atau simbolnya.
+   Khusus untuk pasar IDX, tambahkan sufiks .JK setelah ticker
+   Contoh ticker: BTC/USDT, NVDA, QQQ, BMRI.JK, BBRI.JK
+
+   Masukan ticker :
+   ```
+
+## 📊 Contoh Tampilan Output Strategi Vacum Model Analysis
+   ```bash
+   ============================================================
+   CRYPTO & STOCK SIGNAL ANALYZER
+   Dibuat oleh: Oki Dwi Yulianto | Strategi: Volume Profile
+   ============================================================
+   Timeframe : 5 Menit (Ideal untuk Scalping/Day Trade)
+   Data      : yfinance (Delay 15m) / Binance (Real-time)
+   ------------------------------------------------------------
+
+   Masukan ticker (Contoh: BTC/USDT, NVDA, BBCA.JK) :
    ```
 
 ## ⚠️ Disclaimer
