@@ -1,13 +1,13 @@
 # 📈 Crypto & Stock Signal Analyzer
 **Aplikasi Analisis Sinyal Trading Otomatis berbasis Python.**
 
-Aplikasi ini dirancang untuk memberikan sinyal cepat (**BELI**, **JUAL**, atau **WAIT**) bagi instrumen Saham maupun Kripto. Menggunakan kombinasi indikator teknikal populer yang telah disempurnakan untuk akurasi yang lebih baik dalam analisa teknikal multi timeframe 4 jam dan 15 menit.
+Aplikasi ini dirancang untuk pemula seperti saya yang ingin investas atau mulai trading, aplikasi ini membantu memberikan sinyal cepat (**BELI**, **JUAL**, atau **WAIT**) bagi instrumen Saham maupun Kripto. Menggunakan kombinasi indikator teknikal populer yang telah disempurnakan untuk akurasi yang lebih baik dalam analisa teknikal multi timeframe 4 jam dan 15 menit.
 
-Saya buat dua strategi analisis:
+Saya buat dua strategi analisis yang diambil dari berbagai video di YouTube kemudian saya campurkan hasilnya adalah:
 1. Multi Timeframe Analysis
 2. Vacuum Model Analysis
 
-Dibuat dengan 💖 oleh **Oki Dwi Yulianto**.
+Dibuat dengan 💖 oleh **Oki Dwi Yulianto** untuk kalian yang pengen memulai investasi atau trading. Jangan digunakan untuk komersil ya?
 
 ---
 
