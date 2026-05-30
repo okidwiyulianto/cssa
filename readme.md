@@ -70,7 +70,7 @@ Strategi ini berfokus pada psikologi trader yang terjebak di area harga tertentu
 
 ---
 
-## 📦 Instalasi
+## 📦 Instalasi & Cara Penggunaan
 
 1. **Install Python 3.11.0**
    [Klik di sini](https://www.python.org/downloads/release/python-3110/)
