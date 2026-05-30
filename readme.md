@@ -72,20 +72,26 @@ Strategi ini berfokus pada psikologi trader yang terjebak di area harga tertentu
 
 ## 📦 Instalasi
 
-1. **Clone Repositori ini:**
+1. **Install Python 3.11.0**
+   [Klik di sini](https://www.python.org/downloads/release/python-3110/)
+
+2. **Install Git**
+   [Klik di sini](https://git-scm.com/install/windows)
+
+3. **Install Library yang Dibutuhkan**
+   ```bash
+   pip install -r requirements.txt
+
+4. **Clone Repositori ini:**
    ```bash
    git clone [https://github.com/okidwiyulianto/cssa.git](https://github.com/okidwiyulianto/cssa.git)
    cd cssa
-
-2. **Install Library yang Dibutuhkan**
-   ```bash
-   pip install -r requirements.txt
 
 ## 🖥️ Cara Penggunaan
 Jalankan aplikasi dengan perintah:
 **Cara eksekusi:**
    ```bash
-   python main.py
+   python multi-timeframe-analysis.py / vacuum-model-analysis.py
    ```
 
 ## 📊 Contoh Tampilan Output Strategi Multi Timeframe Analysis
