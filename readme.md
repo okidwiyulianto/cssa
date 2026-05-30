@@ -84,15 +84,15 @@ Strategi ini berfokus pada psikologi trader yang terjebak di area harga tertentu
 
 4. **Clone Repositori ini:**
    ```bash
-   git clone [https://github.com/okidwiyulianto/cssa.git](https://github.com/okidwiyulianto/cssa.git)
+   git clone https://github.com/okidwiyulianto/cssa.git
    cd cssa
 
-## 🖥️ Cara Penggunaan
-Jalankan aplikasi dengan perintah:
-**Cara eksekusi:**
+5. **Jalankan Programnya dengan klik 2x pada file Python atau ketikan perintah:**
    ```bash
-   python multi-timeframe-analysis.py / vacuum-model-analysis.py
-   ```
+   python multi-timeframe-analysis.py
+   python vacuum-model-analysis.py
+
+---
 
 ## 📊 Contoh Tampilan Output Strategi Multi Timeframe Analysis
    ```bash
